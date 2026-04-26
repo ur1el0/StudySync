@@ -14,8 +14,10 @@ Quick run guide for this workspace.
 ## 1. Open the project root
 
 ```bash
-cd /run/media/dokja/A262F53062F509B5/Users/Dell/vsc/Projects/mern-projects/ss
+cd <project-root>
 ```
+
+If you cloned this repository, `<project-root>` is the folder containing `backend`, `frontend`, and the root `package.json`.
 
 ## 2. Install dependencies
 
@@ -34,7 +36,7 @@ Backend runs on `http://localhost:5000`.
 ## 4. Run frontend (new terminal)
 
 ```bash
-cd /run/media/dokja/A262F53062F509B5/Users/Dell/vsc/Projects/mern-projects/ss
+cd <project-root>
 npm run dev:frontend
 ```
 
@@ -79,6 +81,6 @@ GEMINI_RETRY_BASE_MS=600
 
 ## 7. Notes
 
-- Run commands from this `ss` folder (not the parent `mern-projects` folder).
+- Run workspace scripts from `<project-root>`.
 - Use local MongoDB URI only if you are intentionally running a local MongoDB server.
 
