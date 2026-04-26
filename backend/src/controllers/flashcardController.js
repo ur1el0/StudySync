@@ -1,11 +1,28 @@
 import Flashcard from "../models/Flashcard.js";
 import Note from "../models/Note.js";
+import { generateFlashcards } from "../utils/aiService.js";
 
-const splitSentences = (content) => {
-	return content
-		.split(/[.!?\n]/)
-		.map((line) => line.trim())
-		.filter((line) => line.length >= 18);
+const MAX_QUESTION_LENGTH = 300;
+const MAX_ANSWER_LENGTH = 1200;
+
+const normalizeText = (value, maxLength) => {
+	if (typeof value !== "string") return "";
+	const clean = value.replace(/\s+/g, " ").trim();
+	if (!clean) return "";
+	if (clean.length <= maxLength) return clean;
+	return `${clean.slice(0, maxLength - 3).trim()}...`;
+};
+
+const sanitizeCards = (cards) => {
+	if (!Array.isArray(cards)) return [];
+
+	return cards
+		.map((card) => ({
+			question: normalizeText(card?.question, MAX_QUESTION_LENGTH),
+			answer: normalizeText(card?.answer, MAX_ANSWER_LENGTH),
+		}))
+		.filter((card) => card.question && card.answer)
+		.slice(0, 10);
 };
 
 export const generateFlashcardsFromNote = async (req, res) => {
@@ -21,26 +38,44 @@ export const generateFlashcardsFromNote = async (req, res) => {
 			return res.status(404).json({ message: "Note not found" });
 		}
 
-		const sentences = splitSentences(note.content).slice(0, 10);
+		if (!note.content || note.content.length < 20) {
+			return res.status(400).json({ message: "Note content is too short for AI generation" });
+		}
 
-		if (sentences.length === 0) {
-			return res.status(400).json({ message: "Note content is too short for flashcard generation" });
+		// Use AI service to generate cards
+		const aiCards = await generateFlashcards(note.content);
+		const preparedCards = sanitizeCards(aiCards);
+
+		if (!preparedCards.length) {
+			return res.status(422).json({ message: "Could not generate valid flashcards from this note" });
 		}
 
 		await Flashcard.deleteMany({ userId: req.user._id, noteId: note._id });
 
 		const generatedCards = await Flashcard.insertMany(
-			sentences.map((sentence, index) => ({
+			preparedCards.map((card) => ({
 				userId: req.user._id,
 				noteId: note._id,
-				question: `Card ${index + 1}: Explain this concept`,
-				answer: sentence,
+				question: card.question,
+				answer: card.answer,
 			}))
 		);
 
 		return res.status(201).json(generatedCards);
 	} catch (error) {
-		return res.status(500).json({ message: "Failed to generate flashcards" });
+		console.error("Flashcard Gen Error:", error?.message);
+		
+		// Handle rate limiting
+		if (error?.message?.includes("rate limiting")) {
+			return res.status(429).json({ message: error.message });
+		}
+		
+		// Handle validation errors
+		if (error?.name === "ValidationError") {
+			return res.status(422).json({ message: "Generated flashcards failed validation. Please try a shorter note." });
+		}
+		
+		return res.status(500).json({ message: error?.message || "Failed to generate flashcards" });
 	}
 };
 
