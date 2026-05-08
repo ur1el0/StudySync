@@ -1,86 +1,95 @@
 # StudySync
 
-Quick run guide for this workspace.
+StudySync is a MERN study-planning app with authentication, subjects, tasks, notes, flashcards, a planner, and optional AI-assisted features.
+
+## What is included
+
+- Backend API built with Express and MongoDB
+- Frontend built with React and Vite
+- Protected app routes for the signed-in experience
+- AI helpers for study workflows when a Gemini key is configured
 
 ## Requirements
 
-- Node.js 18+
-- npm 9+
-- A valid `backend/.env` file with:
-	- `MONGO_URI`
-	- `JWT_SECRET`
-	- `GEMINI_API_KEY` (optional, but required for AI extraction/generation)
+- Node.js 18 or newer
+- npm 9 or newer
+- MongoDB connection string
+- JWT secret for authentication
+- Optional Gemini API key for AI features
 
-## 1. Open the project root
+## Setup
 
-```bash
-cd <project-root>
-```
-
-If you cloned this repository, `<project-root>` is the folder containing `backend`, `frontend`, and the root `package.json`.
-
-## 2. Install dependencies
+1. Install dependencies from the workspace root:
 
 ```bash
 npm run install:all
 ```
 
-## 3. Run backend
+2. Create `backend/.env` from the example file and set the required values:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_value
+GEMINI_API_KEY=your_optional_gemini_key
+```
+
+3. Start the backend:
 
 ```bash
 npm run dev:backend
 ```
 
-Backend runs on `http://localhost:5000`.
+The API runs on `http://localhost:5000`.
 
-## 4. Run frontend (new terminal)
+4. Start the frontend in a second terminal:
 
 ```bash
-cd <project-root>
 npm run dev:frontend
 ```
 
-Frontend runs on `http://localhost:5173`.
+The app runs on `http://localhost:5173`.
 
-## 5. Available workspace scripts
+## Workspace Scripts
 
-```bash
-npm run install:all
-npm run dev:backend
-npm run dev:frontend
-npm run build:frontend
-```
+- `npm run install:all` - Install backend and frontend dependencies
+- `npm run dev:backend` - Start the API with nodemon
+- `npm run dev:frontend` - Start the Vite dev server
+- `npm run build:frontend` - Build the frontend for production
 
-## 6. Common issues
+## Main API Areas
 
-### Gemini `404 model not found`
+- `/api/auth`
+- `/api/subjects`
+- `/api/tasks`
+- `/api/notes`
+- `/api/flashcards`
+- `/api/ai`
 
-If logs show model errors, set a supported model in `backend/.env`:
+## Frontend Routes
 
-```env
-GEMINI_MODEL=gemini-2.0-flash
-```
+- `/login`
+- `/register`
+- `/dashboard`
+- `/subjects`
+- `/tasks`
+- `/notes`
+- `/planner`
+- `/flashcards`
+- `/settings`
 
-### Gemini `429 Too Many Requests` / `quota exceeded`
+## Common Issues
 
-This is a quota/billing limit from Gemini, not an app crash.
+### MongoDB connection fails
 
-- Wait and retry later
-- Check Gemini usage and billing in your Google AI project
-- Optional retry tuning in `backend/.env`:
+- Confirm `MONGO_URI` is correct
+- Check that the database is reachable from your machine
 
-```env
-GEMINI_MAX_RETRIES=4
-GEMINI_RETRY_BASE_MS=600
-```
+### AI features do not work
 
-### MongoDB connection issues
+- Confirm `GEMINI_API_KEY` is present
+- Check that the configured Gemini model is supported by your account
 
-- Confirm `MONGO_URI` is valid in `backend/.env`
-- Make sure your Atlas IP allowlist includes your current IP
+### Frontend cannot reach the API
 
-## 7. Notes
-
-- Run workspace scripts from `<project-root>`.
-- Use local MongoDB URI only if you are intentionally running a local MongoDB server.
-
+- Make sure the backend is running on port 5000
+- Check that CORS is not being blocked by a browser extension or proxy

@@ -9,6 +9,7 @@ import subjectRoutes from "./routes/subjectRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
 import flashcardRoutes from "./routes/flashcardRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -30,6 +31,7 @@ app.use("/api/subjects", subjectRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/flashcards", flashcardRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
